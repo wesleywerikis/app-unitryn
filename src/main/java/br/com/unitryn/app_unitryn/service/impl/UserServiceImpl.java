@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.unitryn.app_unitryn.dto.UserDto;
@@ -17,10 +18,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository repository, UserMapper mapper) {
+    public UserServiceImpl(UserRepository repository, UserMapper mapper, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -39,6 +42,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto save(User user) {
+        user.setPassword(passwordEncoder
+                .encode(user.getPassword()));
         return mapper.toDto(repository.save(user));
     }
 
@@ -47,7 +52,7 @@ public class UserServiceImpl implements UserService {
         return repository.findById(id).map(user -> {
             user.setName(updateUser.getName());
             user.setEmail(updateUser.getEmail());
-            user.setPassword(updateUser.getPassword());
+            user.setPassword(passwordEncoder.encode(updateUser.getPassword()));
             return mapper.toDto(repository.save(user));
         });
     }
