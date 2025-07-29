@@ -2,6 +2,7 @@ package br.com.unitryn.app_unitryn.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,8 +18,12 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**", "/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll() 
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .headers(headers -> headers.frameOptions().sameOrigin());
+
         return http.build();
     }
 
