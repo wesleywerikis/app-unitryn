@@ -16,7 +16,7 @@ import br.com.unitryn.app_unitryn.security.JwtUtil;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AuthController {
 
     private final UserRepository userRepository;
@@ -31,17 +31,23 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginUser) {
-        Optional<User> optionalUser = userRepository.findByEmail(loginUser.getEmail());
+        try {
+            Optional<User> optionalUser = userRepository.findByEmail(loginUser.getEmail());
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
 
-            if (passwordEncoder.matches(loginUser.getPassword(), user.getPassword())) {
-                String token = jwtUtil.generateToken(user.getEmail());
-                return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
+                if (passwordEncoder.matches(loginUser.getPassword(), user.getPassword())) {
+                    String token = jwtUtil.generateToken(user.getEmail());
+                    return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
+                }
             }
-        }
 
-        return ResponseEntity.status(401).body("Invalid email or passwword.");
+            return ResponseEntity.status(401).body("Invalid email or password.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
     }
 }
