@@ -19,7 +19,6 @@ import br.com.unitryn.app_unitryn.service.UserService;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService service;
